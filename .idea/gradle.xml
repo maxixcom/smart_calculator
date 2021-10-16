@@ -4,12 +4,20 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="delegatedBuild" value="false" />
+        <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/Smart Calculator/task" />
+            <option value="$PROJECT_DIR$/Topics/For loop and ranges/The sum of N numbers" />
+            <option value="$PROJECT_DIR$/Topics/For loop and ranges/Theory" />
+            <option value="$PROJECT_DIR$/Topics/Regexps in use/Aaaaaaa to a" />
+            <option value="$PROJECT_DIR$/Topics/Regexps in use/Removing chords" />
+            <option value="$PROJECT_DIR$/Topics/Regexps in use/Splitting with spaces" />
+            <option value="$PROJECT_DIR$/Topics/Regexps in use/Theory" />
+            <option value="$PROJECT_DIR$/Topics/Regexps in use/Web colors" />
             <option value="$PROJECT_DIR$/util" />
           </set>
         </option>
