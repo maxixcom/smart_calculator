@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
@@ -11,6 +12,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/Smart Calculator/task" />
+            <option value="$PROJECT_DIR$/Topics/For loop and ranges/Check the order" />
             <option value="$PROJECT_DIR$/Topics/For loop and ranges/The sum of N numbers" />
             <option value="$PROJECT_DIR$/Topics/For loop and ranges/Theory" />
             <option value="$PROJECT_DIR$/Topics/Regexps in use/Aaaaaaa to a" />

@@ -1,6 +1,9 @@
 package calculator
 
+val variables = mutableMapOf<String, Int>()
+
 fun main() {
+
     while (true) {
         val input = readLine()!!
         if (input.isBlank()) {
@@ -19,26 +22,63 @@ fun main() {
                 }
             }
         }
-        if (!isValidExpression(input)) {
+
+        if (input.isAssignment()) {
+            println("Assignment")
+            input.processAssignment()
+            continue
+        }
+
+        if (!input.isValidExpression()) {
             println("Invalid expression")
             continue
         }
-        val numbers = parseNumbers(input)
+
+        val numbers = input.parseNumbers()
         println(numbers.sum())
     }
 
     println("Bye!")
 }
 
-fun isValidExpression(input: String): Boolean {
-    val regex = "^([\\+\\-]?\\d+)(\\s+[\\+\\-]+\\s+\\d+)*$".toRegex()
-    return regex.matches(input)
+fun String.processAssignment() {
+    val regex = "^(?<left>[a-zA-Z]+)\\s*=\\s*(?<right>[a-zA-Z]+|\\d+)$".toRegex()
+    regex.matchEntire(this)?.let {
+        val left = it.groups["left"]!!.value
+        val right = it.groups["right"]!!.value
+        if (right.isVariable()) {
+            variables[right]?.let { value ->
+                variables[left] = value
+            } ?: println("Unknown variable")
+        } else {
+            variables[left] = right.toInt()
+        }
+    } ?: println("Invalid assignment")
 }
 
-fun parseNumbers(input: String): List<Int> {
-    var i = input.replace("\\+".toRegex(), "")
+fun String.isVariable() = "[a-zA-Z]+".toRegex().matches(this)
+
+fun String.isAssignment(): Boolean {
+    val regex = "^[a-zA-Z]+\\s*=\\s*([a-zA-Z]+|\\d+)$".toRegex()
+    return regex.matches(this)
+}
+
+fun String.isValidExpression(): Boolean {
+//    val regex = "^([\\+\\-]?\\d+)(\\s+[\\+\\-]+\\s+\\d+)*$".toRegex()
+    val regex = "^([\\+\\-]?([a-zA-Z]+|\\d+))(\\s+[\\+\\-]+\\s+([a-zA-Z]+|\\d+))*$".toRegex()
+    return regex.matches(this)
+}
+
+fun String.parseNumbers(): List<Int> {
+    var i = replace("\\+".toRegex(), "")
     i = i.replace("--", "")
-    i = i.replace("([\\-\\+])\\s+(\\d+)".toRegex(), "$1$2")
+    i = i.replace("([\\-\\+])\\s+([a-zA-Z]+|\\d+)".toRegex(), "$1$2")
+
+    for ((k, v) in variables) {
+        i = i.replace(k, v.toString())
+    }
+
+    i = i.replace("--", "")
 
     return i.split("\\s+".toRegex()).map(String::toInt)
 }
