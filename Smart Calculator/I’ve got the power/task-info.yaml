@@ -260,19 +260,22 @@ files:
         }
     }
   learner_created: false
-- name: src/calculator/Stack.kt
-  visible: true
-  learner_created: true
-- name: src/calculator/StackImpl.kt
-  visible: true
-  learner_created: true
-- name: src/calculator/InfixToPostfix.kt
+- name: src/calculator/Tokenizer.kt
   visible: true
   learner_created: true
 - name: src/calculator/Token.kt
   visible: true
   learner_created: true
-- name: src/calculator/Tokenizer.kt
+- name: src/calculator/Stack.kt
+  visible: true
+  learner_created: true
+- name: src/calculator/InfixToPostfix.kt
+  visible: true
+  learner_created: true
+- name: src/calculator/StackImpl.kt
+  visible: true
+  learner_created: true
+- name: src/calculator/Evaluator.kt
   visible: true
   learner_created: true
 feedback_link: https://hyperskill.org/projects/88/stages/492/implement#comment

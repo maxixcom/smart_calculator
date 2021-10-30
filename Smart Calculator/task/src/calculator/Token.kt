@@ -32,4 +32,6 @@ sealed interface Token {
     object BracketClose : Token {
         override fun toString() = ")"
     }
+
+    object None : Token
 }

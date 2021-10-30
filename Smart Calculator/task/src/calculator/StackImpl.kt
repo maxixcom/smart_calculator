@@ -7,7 +7,7 @@ package calculator
 class StackImpl<E> : Stack<E> {
     private val storage: ArrayDeque<E> = ArrayDeque()
     override fun empty(): Boolean = storage.isEmpty()
-    override fun peek(): E = storage.last()
+    override fun top(): E = storage.last()
     override fun pop(): E = storage.removeLast()
     override fun push(item: E) = storage.addLast(item)
 }
