@@ -359,6 +359,388 @@ files:
         }
     }
   learner_created: false
+- name: src/calculator/InfixToPostfix.kt
+  visible: true
+  text: |
+    package calculator
+
+    fun priority(token: Token): Int = when (token) {
+        Token.Plus, Token.Minus -> 1
+        Token.Multiply, Token.Divide -> 2
+        Token.Power -> 3
+        else -> 0
+    }
+
+    fun infixToPostfix(input: List<Token>): List<Token> {
+        val output = mutableListOf<Token>()
+        val stack: Stack<Token> = StackImpl()
+        stack.push(Token.None)
+        for (t in input) {
+            when (t) {
+                is Token.Variable, is Token.Number -> output.add(t)
+                is Token.BracketOpen -> stack.push(t)
+                is Token.Power -> stack.push(t)
+                is Token.BracketClose -> {
+                    while (stack.top() != Token.None && stack.top() != Token.BracketOpen) {
+                        output.add(stack.pop())
+                    }
+                    stack.pop()
+                }
+                else -> {
+                    if (priority(t) > priority(stack.top())) {
+                        stack.push(t)
+                    } else {
+                        while (stack.top() != Token.None && priority(t) <= priority(stack.top())) {
+                            output.add(stack.pop())
+                        }
+                        stack.push(t)
+                    }
+                }
+            }
+        }
+
+        while (stack.top() != Token.None) {
+            output.add(stack.pop())
+        }
+
+        return output
+    }
+  learner_created: true
+- name: src/calculator/Evaluator.kt
+  visible: true
+  text: |
+    package calculator
+
+    import kotlin.math.pow
+
+    fun evaluateExpression(input: List<Token>, symbolTable: Map<String, Int>): Int {
+        val stack: Stack<Int> = StackImpl()
+        stack.push(0)
+        for (t in input) {
+            when (t) {
+                is Token.Variable -> {
+                    symbolTable[t.value]?.let { stack.push(it) } ?: throw Exception("Unknown variable")
+                }
+                is Token.Number -> {
+                    stack.push(t.value)
+                }
+                is Token.Minus -> {
+                    val right = stack.pop()
+                    val left = stack.pop()
+                    stack.push(left - right)
+                }
+                is Token.Plus -> {
+                    val right = stack.pop()
+                    val left = stack.pop()
+                    stack.push(left + right)
+                }
+                is Token.Multiply -> {
+                    val right = stack.pop()
+                    val left = stack.pop()
+                    stack.push(left * right)
+                }
+                is Token.Divide -> {
+                    val right = stack.pop()
+                    val left = stack.pop()
+                    stack.push(left / right)
+                }
+                is Token.Power -> {
+                    val right = stack.pop()
+                    val left = stack.pop()
+                    stack.push(left.toDouble().pow(right.toDouble()).toInt())
+                }
+                else -> throw Exception("Unexpected token: $t")
+            }
+        }
+        return stack.top()
+    }
+  learner_created: true
+- name: src/calculator/Assignment.kt
+  visible: true
+  text: |
+    package calculator
+
+    class Assignment {
+        companion object {
+            val regex = "^\\s*(?<left>[a-zA-Z]+)\\s*=\\s*(?<right>-?([a-zA-Z]+|\\d+))\\s*$".toRegex()
+        }
+    }
+  learner_created: true
+- name: src/calculator/Stack.kt
+  visible: true
+  text: |
+    package calculator
+
+    interface Stack<E> {
+        fun empty(): Boolean
+        fun top(): E
+        fun pop(): E
+        fun push(item: E)
+    }
+  learner_created: true
+- name: src/calculator/Token.kt
+  visible: true
+  text: |
+    package calculator
+
+    sealed interface Token {
+        class Number(val value: Int) : Token {
+            override fun toString() = value.toString()
+        }
+
+        class Variable(val value: String) : Token {
+            override fun toString() = value
+        }
+
+        object Multiply : Token {
+            override fun toString() = "*"
+        }
+
+        object Divide : Token {
+            override fun toString() = "*"
+        }
+
+        object Plus : Token {
+            override fun toString() = "+"
+        }
+
+        object Minus : Token {
+            override fun toString() = "-"
+        }
+
+        object BracketOpen : Token {
+            override fun toString() = "("
+        }
+
+        object BracketClose : Token {
+            override fun toString() = ")"
+        }
+
+        object Power : Token {
+            override fun toString() = "^"
+        }
+
+        object None : Token
+    }
+  learner_created: true
+- name: src/calculator/StackImpl.kt
+  visible: true
+  text: |
+    package calculator
+
+    /**
+     * Stack implementation based on ArrayDeque
+     * https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-array-deque/
+     */
+    class StackImpl<E> : Stack<E> {
+        private val storage: ArrayDeque<E> = ArrayDeque()
+        override fun empty(): Boolean = storage.isEmpty()
+        override fun top(): E = storage.last()
+        override fun pop(): E = storage.removeLast()
+        override fun push(item: E) = storage.addLast(item)
+    }
+  learner_created: true
+- name: src/calculator/Extensions.kt
+  visible: true
+  text: |
+    package calculator
+
+    fun String.isVariable() = "[a-zA-Z]+".toRegex().matches(this)
+
+    fun String.isNumber() = "\\d+".toRegex().matches(this)
+
+    fun String.isAssignment() = Assignment.regex.matchEntire(this)?.let { true } ?: false
+  learner_created: true
+- name: src/calculator/Tokenizer.kt
+  visible: true
+  text: |
+    package calculator
+
+    fun parse(input: String): List<Token> {
+        val tokens = mutableListOf<Token>()
+        var index = 0
+        while (index <= input.lastIndex) {
+            val ch = input[index]
+            if (ch.isWhitespace()) {
+                index++
+                continue
+            }
+            if (ch.isLetterOrDigit()) {
+                var value = "$ch"
+
+                while ((++index <= input.lastIndex) && input[index].isLetterOrDigit()) {
+                    value += input[index]
+                }
+                when {
+                    value.isVariable() -> tokens.add(Token.Variable(value))
+                    value.isNumber() -> tokens.add(Token.Number(value.toInt()))
+                    else -> throw Exception("Invalid expression")
+                }
+                continue
+            }
+            tokens.add(
+                when (ch) {
+                    '-' -> Token.Minus
+                    '+' -> Token.Plus
+                    '*' -> Token.Multiply
+                    '/' -> Token.Divide
+                    '(' -> Token.BracketOpen
+                    ')' -> Token.BracketClose
+                    '^' -> Token.Power
+                    else -> throw Exception("Invalid expression")
+                }
+            )
+            index++
+        }
+        return tokens
+    }
+
+    fun normalize(input: String): String {
+        var i = input
+        i = i.replace("\\s+".toRegex(), "")
+        if (input.count { it == '(' } != input.count { it == ')' }) {
+            throw Exception("Invalid expression")
+        }
+        return i
+    }
+
+    fun compact(tokens: List<Token>): List<Token> {
+        val output = mutableListOf<Token>()
+        var m = 0
+        var p = 0
+        for (t in tokens) {
+            if (t == Token.Minus) {
+                m++
+                continue
+            }
+            if (t == Token.Plus) {
+                p++
+                continue
+            }
+            if (p > 0 || m > 0) {
+                if (m % 2 == 1) {
+                    output.add(Token.Minus)
+                } else {
+                    output.add(Token.Plus)
+                }
+                p = 0
+                m = 0
+            }
+            output.add(t)
+        }
+        return output
+    }
+
+    fun lex(tokens: List<Token>) {
+        when (tokens.first()) {
+            is Token.Variable, is Token.Number,
+            is Token.BracketOpen,
+            is Token.Minus, is Token.Plus -> {
+            }
+            else -> throw Exception("Invalid expression")
+        }
+
+        var index = 0
+        while (++index < tokens.size) {
+            val left = tokens[index - 1]
+            val right = tokens[index]
+            when (left) {
+                is Token.Variable -> {
+                    when (right) {
+                        is Token.BracketOpen, is Token.BracketClose,
+                        is Token.Minus, is Token.Plus,
+                        is Token.Divide, is Token.Multiply,
+                        is Token.Power -> {
+                            continue
+                        }
+                        else -> throw Exception("Invalid expression")
+                    }
+                }
+                is Token.Number -> {
+                    when (right) {
+                        is Token.BracketOpen, is Token.BracketClose,
+                        is Token.Minus, is Token.Plus,
+                        is Token.Divide, is Token.Multiply,
+                        is Token.Power -> {
+                            continue
+                        }
+                        else -> throw Exception("Invalid expression")
+                    }
+                }
+                is Token.BracketOpen -> {
+                    when (right) {
+                        is Token.Variable, is Token.Number,
+                        is Token.BracketOpen, is Token.BracketClose,
+                        is Token.Minus, is Token.Plus -> {
+                            continue
+                        }
+                        else -> throw Exception("Invalid expression")
+                    }
+                }
+                is Token.BracketClose -> {
+                    when (right) {
+                        is Token.BracketClose,
+                        is Token.Minus, is Token.Plus,
+                        is Token.Divide, is Token.Multiply,
+                        is Token.Power -> {
+                            continue
+                        }
+                        else -> throw Exception("Invalid expression")
+                    }
+                }
+                is Token.Minus -> {
+                    when (right) {
+                        is Token.Variable, is Token.Number,
+                        is Token.BracketOpen -> {
+                            continue
+                        }
+                        else -> throw Exception("Invalid expression")
+                    }
+                }
+                is Token.Plus -> {
+                    when (right) {
+                        is Token.Variable, is Token.Number,
+                        is Token.BracketOpen -> {
+                            continue
+                        }
+                        else -> throw Exception("Invalid expression")
+                    }
+                }
+                is Token.Divide -> {
+                    when (right) {
+                        is Token.Variable, is Token.Number,
+                        is Token.BracketOpen -> {
+                            continue
+                        }
+                        else -> throw Exception("Invalid expression")
+                    }
+                }
+                is Token.Multiply -> {
+                    when (right) {
+                        is Token.Variable, is Token.Number,
+                        is Token.BracketOpen -> {
+                            continue
+                        }
+                        else -> throw Exception("Invalid expression")
+                    }
+                }
+                is Token.Power -> {
+                    when (right) {
+                        is Token.Variable, is Token.Number,
+                        is Token.BracketOpen -> {
+                            continue
+                        }
+                        else -> throw Exception("Invalid expression")
+                    }
+                }
+            }
+        }
+    }
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/88/stages/493/implement#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Well done! You've finished the project. Select a new project on <a href="https://hyperskill.org/projects">JetBrains
+    Academy</a> to continue learning.
+  time: Mon, 01 Nov 2021 12:12:21 UTC
 record: -1

@@ -12,6 +12,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/Smart Calculator/task" />
+            <option value="$PROJECT_DIR$/Topics/BigInteger/Exabytes" />
+            <option value="$PROJECT_DIR$/Topics/BigInteger/Percentage" />
+            <option value="$PROJECT_DIR$/Topics/BigInteger/Theory" />
             <option value="$PROJECT_DIR$/Topics/Comments/Comment some lines" />
             <option value="$PROJECT_DIR$/Topics/Comments/Incorrect comments" />
             <option value="$PROJECT_DIR$/Topics/Comments/Printing only the longest line" />

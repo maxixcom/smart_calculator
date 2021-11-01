@@ -17,7 +17,7 @@ fun parse(input: String): List<Token> {
             }
             when {
                 value.isVariable() -> tokens.add(Token.Variable(value))
-                value.isNumber() -> tokens.add(Token.Number(value.toInt()))
+                value.isNumber() -> tokens.add(Token.Number(value.toBigInteger()))
                 else -> throw Exception("Invalid expression")
             }
             continue

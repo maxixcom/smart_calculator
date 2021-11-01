@@ -1,10 +1,10 @@
 package calculator
 
-import kotlin.math.pow
+import java.math.BigInteger
 
-fun evaluateExpression(input: List<Token>, symbolTable: Map<String, Int>): Int {
-    val stack: Stack<Int> = StackImpl()
-    stack.push(0)
+fun evaluateExpression(input: List<Token>, symbolTable: Map<String, BigInteger>): BigInteger {
+    val stack: Stack<BigInteger> = StackImpl()
+    stack.push(BigInteger.ZERO)
     for (t in input) {
         when (t) {
             is Token.Variable -> {
@@ -36,7 +36,7 @@ fun evaluateExpression(input: List<Token>, symbolTable: Map<String, Int>): Int {
             is Token.Power -> {
                 val right = stack.pop()
                 val left = stack.pop()
-                stack.push(left.toDouble().pow(right.toDouble()).toInt())
+                stack.push(left.pow(right.toInt()))
             }
             else -> throw Exception("Unexpected token: $t")
         }

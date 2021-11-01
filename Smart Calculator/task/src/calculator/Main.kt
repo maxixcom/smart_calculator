@@ -1,7 +1,9 @@
 package calculator
 
+import java.math.BigInteger
+
 fun main() {
-    val symbolTable = mutableMapOf<String, Int>()
+    val symbolTable = mutableMapOf<String, BigInteger>()
 
     while (true) {
         val input = readLine()!!
@@ -36,7 +38,7 @@ fun main() {
     println("Bye!")
 }
 
-fun evaluateExpression(input: String, symbolTable: Map<String, Int>): Int {
+fun evaluateExpression(input: String, symbolTable: Map<String, BigInteger>): BigInteger {
     val tokens = compact(parse(normalize(input)))
 
     lex(tokens)
@@ -46,7 +48,7 @@ fun evaluateExpression(input: String, symbolTable: Map<String, Int>): Int {
     return evaluateExpression(postfix, symbolTable)
 }
 
-fun processAssignment(input: String, symbolTable: MutableMap<String, Int>) {
+fun processAssignment(input: String, symbolTable: MutableMap<String, BigInteger>) {
     Assignment.regex.matchEntire(input)?.let {
         val left = it.groups["left"]!!.value
         val right = it.groups["right"]!!.value
@@ -55,7 +57,7 @@ fun processAssignment(input: String, symbolTable: MutableMap<String, Int>) {
                 symbolTable[left] = value
             } ?: println("Unknown variable")
         } else {
-            symbolTable[left] = right.toInt()
+            symbolTable[left] = right.toBigInteger()
         }
     } ?: println("Invalid assignment")
 }

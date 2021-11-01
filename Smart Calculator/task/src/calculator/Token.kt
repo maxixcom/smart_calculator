@@ -1,7 +1,9 @@
 package calculator
 
+import java.math.BigInteger
+
 sealed interface Token {
-    class Number(val value: Int) : Token {
+    class Number(val value: BigInteger) : Token {
         override fun toString() = value.toString()
     }
 
