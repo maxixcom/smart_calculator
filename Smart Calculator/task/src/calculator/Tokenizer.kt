@@ -1,8 +1,5 @@
 package calculator
 
-// fun String.isVariable() = "[a-zA-Z]+".toRegex().matches(this)
-fun String.isNumber() = "\\d+".toRegex().matches(this)
-
 fun parse(input: String): List<Token> {
     val tokens = mutableListOf<Token>()
     var index = 0
@@ -33,6 +30,7 @@ fun parse(input: String): List<Token> {
                 '/' -> Token.Divide
                 '(' -> Token.BracketOpen
                 ')' -> Token.BracketClose
+                '^' -> Token.Power
                 else -> throw Exception("Invalid expression")
             }
         )
@@ -95,7 +93,8 @@ fun lex(tokens: List<Token>) {
                 when (right) {
                     is Token.BracketOpen, is Token.BracketClose,
                     is Token.Minus, is Token.Plus,
-                    is Token.Divide, is Token.Multiply -> {
+                    is Token.Divide, is Token.Multiply,
+                    is Token.Power -> {
                         continue
                     }
                     else -> throw Exception("Invalid expression")
@@ -105,7 +104,8 @@ fun lex(tokens: List<Token>) {
                 when (right) {
                     is Token.BracketOpen, is Token.BracketClose,
                     is Token.Minus, is Token.Plus,
-                    is Token.Divide, is Token.Multiply -> {
+                    is Token.Divide, is Token.Multiply,
+                    is Token.Power -> {
                         continue
                     }
                     else -> throw Exception("Invalid expression")
@@ -125,7 +125,8 @@ fun lex(tokens: List<Token>) {
                 when (right) {
                     is Token.BracketClose,
                     is Token.Minus, is Token.Plus,
-                    is Token.Divide, is Token.Multiply -> {
+                    is Token.Divide, is Token.Multiply,
+                    is Token.Power -> {
                         continue
                     }
                     else -> throw Exception("Invalid expression")
@@ -167,34 +168,15 @@ fun lex(tokens: List<Token>) {
                     else -> throw Exception("Invalid expression")
                 }
             }
+            is Token.Power -> {
+                when (right) {
+                    is Token.Variable, is Token.Number,
+                    is Token.BracketOpen -> {
+                        continue
+                    }
+                    else -> throw Exception("Invalid expression")
+                }
+            }
         }
     }
-}
-
-fun main() {
-//    val input = "1 +-+-+- (  2 * 3 )- 4"
-//    val input = "1 ----- (  2 * 3 )- 4"
-//    val input = "(1 ++5++- (  2 * 3 )- 4)"
-//    val input = "a*(b+c)+d*(e+f)"
-    val input = "1+a*(3+2)"
-    println(input)
-    var i = normalize(input)
-    var tokens = parse(i)
-    println(tokens)
-    tokens = compact(tokens)
-    println(tokens)
-    lex(tokens)
-
-    val postfix = infixToPostfix(tokens)
-
-    println(postfix)
-    val symbolTable = mapOf(
-        "a" to 2,
-        "b" to 1,
-        "c" to 1,
-        "d" to 3,
-        "e" to 1,
-        "f" to 1,
-    )
-    println(evaluateExpression(postfix, symbolTable))
 }

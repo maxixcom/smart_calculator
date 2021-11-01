@@ -3,6 +3,7 @@ package calculator
 fun priority(token: Token): Int = when (token) {
     Token.Plus, Token.Minus -> 1
     Token.Multiply, Token.Divide -> 2
+    Token.Power -> 3
     else -> 0
 }
 
@@ -14,6 +15,7 @@ fun infixToPostfix(input: List<Token>): List<Token> {
         when (t) {
             is Token.Variable, is Token.Number -> output.add(t)
             is Token.BracketOpen -> stack.push(t)
+            is Token.Power -> stack.push(t)
             is Token.BracketClose -> {
                 while (stack.top() != Token.None && stack.top() != Token.BracketOpen) {
                     output.add(stack.pop())

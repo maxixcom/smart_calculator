@@ -1,8 +1,7 @@
 package calculator
 
-val variables = mutableMapOf<String, Int>()
-
 fun main() {
+    val symbolTable = mutableMapOf<String, Int>()
 
     while (true) {
         val input = readLine()!!
@@ -24,65 +23,45 @@ fun main() {
         }
 
         if (input.isAssignment()) {
-            println("Assignment")
-            input.processAssignment()
+            processAssignment(input, symbolTable)
             continue
         }
-
-        if (!input.isValidExpression()) {
-            println("Invalid expression")
-            continue
+        try {
+            println(evaluateExpression(input, symbolTable))
+        } catch (e: Exception) {
+            println(e.message)
         }
-
-        val numbers = input.parseNumbers()
-        println(numbers.sum())
     }
 
     println("Bye!")
 }
 
-fun String.processAssignment() {
-    val regex = "^(?<left>[a-zA-Z]+)\\s*=\\s*(?<right>[a-zA-Z]+|\\d+)$".toRegex()
-    regex.matchEntire(this)?.let {
+fun evaluateExpression(input: String, symbolTable: Map<String, Int>): Int {
+    val tokens = compact(parse(normalize(input)))
+
+    lex(tokens)
+
+    val postfix = infixToPostfix(tokens)
+
+    return evaluateExpression(postfix, symbolTable)
+}
+
+fun processAssignment(input: String, symbolTable: MutableMap<String, Int>) {
+    Assignment.regex.matchEntire(input)?.let {
         val left = it.groups["left"]!!.value
         val right = it.groups["right"]!!.value
         if (right.isVariable()) {
-            variables[right]?.let { value ->
-                variables[left] = value
+            symbolTable[right]?.let { value ->
+                symbolTable[left] = value
             } ?: println("Unknown variable")
         } else {
-            variables[left] = right.toInt()
+            symbolTable[left] = right.toInt()
         }
     } ?: println("Invalid assignment")
 }
 
-fun String.isVariable() = "[a-zA-Z]+".toRegex().matches(this)
-
-fun String.isAssignment(): Boolean {
-    val regex = "^[a-zA-Z]+\\s*=\\s*([a-zA-Z]+|\\d+)$".toRegex()
-    return regex.matches(this)
-}
-
-fun String.isValidExpression(): Boolean {
-//    val regex = "^([\\+\\-]?\\d+)(\\s+[\\+\\-]+\\s+\\d+)*$".toRegex()
-    val regex = "^([\\+\\-]?([a-zA-Z]+|\\d+))(\\s+[\\+\\-]+\\s+([a-zA-Z]+|\\d+))*$".toRegex()
-    return regex.matches(this)
-}
-
-fun String.parseNumbers(): List<Int> {
-    var i = replace("\\+".toRegex(), "")
-    i = i.replace("--", "")
-    i = i.replace("([\\-\\+])\\s+([a-zA-Z]+|\\d+)".toRegex(), "$1$2")
-
-    for ((k, v) in variables) {
-        i = i.replace(k, v.toString())
-    }
-
-    i = i.replace("--", "")
-
-    return i.split("\\s+".toRegex()).map(String::toInt)
-}
-
 fun printHelp() {
-    println("The program calculates the sum of numbers")
+    println("Here is an example of an expression that contains all possible operations:")
+    println("3 + 8 * ((4 + 3) * 2 + 1) - 6 / (2 + 1)")
+    println("The result is 121.")
 }

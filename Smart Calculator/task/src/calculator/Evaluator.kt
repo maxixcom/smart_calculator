@@ -1,5 +1,7 @@
 package calculator
 
+import kotlin.math.pow
+
 fun evaluateExpression(input: List<Token>, symbolTable: Map<String, Int>): Int {
     val stack: Stack<Int> = StackImpl()
     stack.push(0)
@@ -30,6 +32,11 @@ fun evaluateExpression(input: List<Token>, symbolTable: Map<String, Int>): Int {
                 val right = stack.pop()
                 val left = stack.pop()
                 stack.push(left / right)
+            }
+            is Token.Power -> {
+                val right = stack.pop()
+                val left = stack.pop()
+                stack.push(left.toDouble().pow(right.toDouble()).toInt())
             }
             else -> throw Exception("Unexpected token: $t")
         }

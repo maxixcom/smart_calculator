@@ -33,5 +33,9 @@ sealed interface Token {
         override fun toString() = ")"
     }
 
+    object Power : Token {
+        override fun toString() = "^"
+    }
+
     object None : Token
 }
